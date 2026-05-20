@@ -1,0 +1,231 @@
+{
+  "_comment": "Sample AEBOM Core record — Tier 1 pull request review agent invocation. All hashes, signatures, and IDs are illustrative only.",
+  "spec_version": "0.1.0",
+  "aebom_id": "a1b2c3d4-0001-4000-8000-000000000001",
+  "record_type": "execution",
+  "created_at": "2025-06-15T09:00:00Z",
+  "schema_uri": "https://github.com/AgentCraftworks/AgenticEngineer-BillOfMaterials/schema/aebom-core.schema.json",
+  "agent": {
+    "agent_id": "agent-codereview-v2@agents.contoso.com",
+    "agent_name": "CodeReview-Agent-v2",
+    "agent_version": "2.4.1",
+    "model_id": "openai/gpt-4o-2024-05-13",
+    "model_provider": "OpenAI",
+    "agent_type": "code-review",
+    "identity_token_ref": "sha256:3f1e2d4c5b6a7f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f2",
+    "identity_provider": "https://login.microsoftonline.com/contoso-tenant-id/v2.0"
+  },
+  "task": {
+    "task_id": "PR-4872",
+    "task_type": "pull-request-review",
+    "task_description": "Review pull request #4872: Add rate-limiting middleware to the API gateway service",
+    "repository": "https://github.com/contoso/api-gateway",
+    "branch": "feature/rate-limiting-middleware",
+    "commit_sha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+  },
+  "authorization": {
+    "authorizing_principal": "jane.smith@contoso.com",
+    "authorization_mechanism": "human-approval",
+    "authorization_timestamp": "2025-06-15T08:58:30Z",
+    "authorization_ref": "sha256:9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8",
+    "scope": [
+      "repo:read",
+      "pr:read",
+      "pr:write",
+      "ci:read"
+    ]
+  },
+  "execution": {
+    "invocation_timestamp": "2025-06-15T09:00:05Z",
+    "completion_timestamp": "2025-06-15T09:12:47Z",
+    "outcome": "success",
+    "outcome_detail": "Completed pull request review. Posted 3 inline comments and 1 summary review comment. Requested changes on 2 items. No security findings requiring escalation.",
+    "actions": [
+      {
+        "action_id": "b2c3d4e5-0001-4000-8000-000000000001",
+        "action_type": "api-call",
+        "timestamp": "2025-06-15T09:00:08Z",
+        "target": "https://api.github.com/repos/contoso/api-gateway/pulls/4872/files",
+        "summary": "Fetched list of changed files in PR #4872 (12 files, +847/-203 lines)",
+        "reversible": true,
+        "tool_name": "github-api-client",
+        "tool_version": "3.2.0",
+        "input_hash": "sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+        "output_hash": "sha256:2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3"
+      },
+      {
+        "action_id": "b2c3d4e5-0002-4000-8000-000000000002",
+        "action_type": "api-call",
+        "timestamp": "2025-06-15T09:00:15Z",
+        "target": "https://api.github.com/repos/contoso/api-gateway/pulls/4872",
+        "summary": "Fetched PR metadata, description, and existing review comments",
+        "reversible": true,
+        "tool_name": "github-api-client",
+        "tool_version": "3.2.0",
+        "input_hash": "sha256:3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4",
+        "output_hash": "sha256:4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5"
+      },
+      {
+        "action_id": "b2c3d4e5-0003-4000-8000-000000000003",
+        "action_type": "api-call",
+        "timestamp": "2025-06-15T09:00:20Z",
+        "target": "https://api.github.com/repos/contoso/api-gateway/actions/runs",
+        "summary": "Fetched CI run results for PR #4872 head commit",
+        "reversible": true,
+        "tool_name": "github-api-client",
+        "tool_version": "3.2.0",
+        "input_hash": "sha256:5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+        "output_hash": "sha256:6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7"
+      },
+      {
+        "action_id": "b2c3d4e5-0004-4000-8000-000000000004",
+        "action_type": "pr-comment",
+        "timestamp": "2025-06-15T09:11:30Z",
+        "target": "https://github.com/contoso/api-gateway/pull/4872",
+        "summary": "Posted inline comment on src/middleware/rate_limiter.py:47 — suggested using a sliding window algorithm instead of fixed window to avoid thundering herd",
+        "reversible": true,
+        "tool_name": "github-api-client",
+        "tool_version": "3.2.0",
+        "input_hash": "sha256:7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8",
+        "output_hash": "sha256:8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9"
+      },
+      {
+        "action_id": "b2c3d4e5-0005-4000-8000-000000000005",
+        "action_type": "pr-comment",
+        "timestamp": "2025-06-15T09:11:55Z",
+        "target": "https://github.com/contoso/api-gateway/pull/4872",
+        "summary": "Posted inline comment on tests/test_rate_limiter.py:12 — test does not cover burst scenario; requested additional test case",
+        "reversible": true,
+        "tool_name": "github-api-client",
+        "tool_version": "3.2.0",
+        "input_hash": "sha256:9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0",
+        "output_hash": "sha256:0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1"
+      },
+      {
+        "action_id": "b2c3d4e5-0006-4000-8000-000000000006",
+        "action_type": "pr-comment",
+        "timestamp": "2025-06-15T09:12:20Z",
+        "target": "https://github.com/contoso/api-gateway/pull/4872",
+        "summary": "Posted summary review requesting changes: 2 items require author response before merge",
+        "reversible": true,
+        "tool_name": "github-api-client",
+        "tool_version": "3.2.0",
+        "input_hash": "sha256:1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2",
+        "output_hash": "sha256:2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3"
+      }
+    ],
+    "artifacts_produced": [
+      {
+        "artifact_id": "c3d4e5f6-0001-4000-8000-000000000001",
+        "artifact_type": "comment",
+        "uri": "https://github.com/contoso/api-gateway/pull/4872#pullrequestreview-987654321",
+        "content_hash": "sha256:3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4",
+        "created_at": "2025-06-15T09:12:20Z",
+        "description": "Summary review comment with requested changes on PR #4872"
+      },
+      {
+        "artifact_id": "c3d4e5f6-0002-4000-8000-000000000002",
+        "artifact_type": "report",
+        "uri": "https://contoso-aebom-storage.blob.core.windows.net/reviews/PR-4872-codereview-report.json",
+        "content_hash": "sha256:4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5",
+        "created_at": "2025-06-15T09:12:45Z",
+        "description": "Structured code review findings report for PR #4872"
+      }
+    ],
+    "human_handoffs": [],
+    "environment": {
+      "environment_id": "github-actions-managed-ubuntu-22-04",
+      "environment_type": "managed-cloud",
+      "runner_id": "Hosted Agent 7b8c9d0e",
+      "platform": "linux/amd64",
+      "network_policy": "egress-restricted",
+      "isolation_attestation_ref": "https://github.com/contoso/api-gateway/actions/runs/9876543210/attestations"
+    }
+  },
+  "trust_posture": {
+    "spec_version": "0.1.0",
+    "evaluated_at": "2025-06-15T09:00:02Z",
+    "evaluated_by": "https://policy.contoso.com/agent-authorization/v1",
+    "overall_status": "pass",
+    "capability_tier": 1,
+    "tier_determination_basis": "scope-mapping",
+    "highest_tier_scope": "pr:write",
+    "identity": {
+      "status": "pass",
+      "agent_id_verified": true,
+      "token_type": "oidc-workload",
+      "token_expiry": "2025-06-15T10:00:00Z",
+      "token_binding_method": "dpop",
+      "identity_provider_verified": true,
+      "identity_provider": "https://login.microsoftonline.com/contoso-tenant-id/v2.0",
+      "registration_ref": "https://entra.microsoft.com/contoso-tenant-id/agents/agent-codereview-v2"
+    },
+    "least_privilege": {
+      "status": "pass",
+      "scope_derivation_method": "policy-engine",
+      "scopes_granted": ["repo:read", "pr:read", "pr:write", "ci:read"],
+      "scopes_requested_not_granted": [],
+      "policy_ref": "https://policy.contoso.com/agent-authorization/v1/evaluations/eval-20250615-090002",
+      "scope_expiry": "2025-06-15T11:00:00Z",
+      "standing_permissions_present": false
+    },
+    "safety_currency": {
+      "status": "pass",
+      "model_id": "openai/gpt-4o-2024-05-13",
+      "model_version": "2024-05-13",
+      "evaluations": [
+        {
+          "benchmark": "mlcommons-ailuminate",
+          "benchmark_version": "1.0",
+          "score": 4.1,
+          "score_max": 5.0,
+          "evaluated_at": "2025-04-10T00:00:00Z",
+          "evaluation_ref": "https://mlcommons.org/ailuminate/results/openai-gpt4o-20240513",
+          "pass": true
+        },
+        {
+          "benchmark": "helm-safety",
+          "benchmark_version": "0.5.0",
+          "score": 82.3,
+          "score_max": 100.0,
+          "evaluated_at": "2025-03-15T00:00:00Z",
+          "evaluation_ref": "https://crfm.stanford.edu/helm/results/gpt-4o-2024-05-13-safety",
+          "pass": true
+        },
+        {
+          "benchmark": "metr-autonomy",
+          "benchmark_version": "0.3.0",
+          "score": 2.0,
+          "score_max": 5.0,
+          "evaluated_at": "2025-04-01T00:00:00Z",
+          "evaluation_ref": "https://metr.org/autonomy-eval/openai-gpt4o-20240513",
+          "pass": true
+        }
+      ],
+      "oldest_evaluation_age_days": 92,
+      "tier_required": 1,
+      "all_required_benchmarks_pass": true
+    },
+    "environment_integrity": {
+      "status": "pass",
+      "environment_type": "managed-cloud",
+      "environment_id": "github-actions-managed-ubuntu-22-04",
+      "runner_id": "Hosted Agent 7b8c9d0e",
+      "egress_policy": "egress-restricted",
+      "ephemeral": true,
+      "audit_log_ref": "https://contoso-aebom-storage.blob.core.windows.net/audit-logs/2025-06-15/run-9876543210.log",
+      "environment_sbom_ref": "https://contoso-aebom-storage.blob.core.windows.net/env-sboms/ubuntu-22-04-runner-2025-06.json",
+      "attestation_ref": "https://github.com/contoso/api-gateway/actions/runs/9876543210/attestations",
+      "meets_tier_requirement": true
+    },
+    "trust_posture_signature": "MEUCIQDexample+base64+signature+value+here+for+illustration+only==",
+    "trust_posture_signing_key_id": "policy-engine-key-2025-06"
+  },
+  "integrity": {
+    "record_hash": "sha256:5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6",
+    "record_signature": "MEUCIQDexample+base64+aebom+record+signature+value+here+for+illustration+only==",
+    "signing_key_id": "agent-codereview-v2-signing-key-2025-06",
+    "signing_algorithm": "ES256",
+    "transparency_log_ref": "https://rekor.sigstore.dev/api/v1/log/entries?logIndex=123456789"
+  }
+}

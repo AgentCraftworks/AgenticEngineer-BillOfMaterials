@@ -1,0 +1,497 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/AgentCraftworks/AgenticEngineer-BillOfMaterials/schema/aebom-core.schema.json",
+  "title": "Agent Execution Bill of Materials (AEBOM) Core Record",
+  "description": "Schema for a per-execution provenance record capturing the identity, authorization, actions, artifacts, and integrity of a single agentic engineering invocation. Specification: spec/01-aebom-core.md",
+  "version": "0.1.0",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "aebom_id",
+    "record_type",
+    "created_at",
+    "agent",
+    "task",
+    "authorization",
+    "execution",
+    "integrity"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "description": "AEBOM specification version this record conforms to.",
+      "enum": ["0.1.0"]
+    },
+    "aebom_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this record. MUST be a UUID v4.",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "record_type": {
+      "type": "string",
+      "description": "Type of AEBOM record.",
+      "enum": ["execution", "test", "simulation"]
+    },
+    "created_at": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp at which this record was created.",
+      "format": "date-time"
+    },
+    "schema_uri": {
+      "type": "string",
+      "description": "URI of the JSON Schema this record was validated against.",
+      "format": "uri"
+    },
+    "agent": {
+      "type": "object",
+      "description": "Identity and classification of the executing agent.",
+      "required": [
+        "agent_id",
+        "agent_name",
+        "agent_version",
+        "model_id",
+        "model_provider",
+        "agent_type",
+        "identity_token_ref",
+        "identity_provider"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Stable identifier for this agent. MUST match the sub claim of the agent's OIDC credential."
+        },
+        "agent_name": {
+          "type": "string",
+          "description": "Human-readable display name for the agent.",
+          "maxLength": 128
+        },
+        "agent_version": {
+          "type": "string",
+          "description": "SemVer version of the agent software.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?(\\+[a-zA-Z0-9.]+)?$"
+        },
+        "model_id": {
+          "type": "string",
+          "description": "Identifier of the underlying foundation model (e.g., openai/gpt-4o-2024-05-13)."
+        },
+        "model_provider": {
+          "type": "string",
+          "description": "Organization providing the model."
+        },
+        "agent_type": {
+          "type": "string",
+          "description": "Functional classification of the agent.",
+          "enum": [
+            "code-review",
+            "code-generation",
+            "dependency-update",
+            "test-generation",
+            "deployment",
+            "security-scan",
+            "orchestrator",
+            "other"
+          ]
+        },
+        "identity_token_ref": {
+          "type": "string",
+          "description": "Content-addressable hash of the OIDC token used to authenticate the agent.",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "identity_provider": {
+          "type": "string",
+          "description": "Identity provider that issued the credential.",
+          "format": "uri"
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "description": "Context of the task this agent invocation services.",
+      "required": ["task_id", "task_type"],
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "Identifier of the task or work item this invocation services."
+        },
+        "task_type": {
+          "type": "string",
+          "description": "Structured task classification.",
+          "enum": [
+            "pull-request-review",
+            "code-generation",
+            "dependency-patch",
+            "test-generation",
+            "ci-fix",
+            "security-scan",
+            "deployment",
+            "documentation",
+            "orchestration",
+            "other"
+          ]
+        },
+        "task_description": {
+          "type": "string",
+          "description": "Human-readable description of the task.",
+          "maxLength": 512
+        },
+        "repository": {
+          "type": "string",
+          "description": "Repository URI the task operates on.",
+          "format": "uri"
+        },
+        "branch": {
+          "type": "string",
+          "description": "Git branch in scope."
+        },
+        "commit_sha": {
+          "type": "string",
+          "description": "Git commit SHA at invocation time.",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "description": "Authorization decision for this invocation.",
+      "required": [
+        "authorizing_principal",
+        "authorization_mechanism",
+        "authorization_timestamp",
+        "scope"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "authorizing_principal": {
+          "type": "string",
+          "description": "Identity of the human or policy engine that authorized this invocation."
+        },
+        "authorization_mechanism": {
+          "type": "string",
+          "description": "How authorization was obtained.",
+          "enum": ["human-approval", "policy-engine", "scheduled-pipeline", "ci-trigger"]
+        },
+        "authorization_timestamp": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp of authorization.",
+          "format": "date-time"
+        },
+        "authorization_ref": {
+          "type": "string",
+          "description": "Content-addressable reference to the authorization artifact.",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "scope": {
+          "type": "array",
+          "description": "Explicit list of scopes granted for this invocation.",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(:[a-z][a-z0-9-]*|:\\*)$|^x-[a-zA-Z0-9:-]+$"
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "Record of the agent's execution.",
+      "required": ["invocation_timestamp", "actions", "environment"],
+      "additionalProperties": false,
+      "properties": {
+        "invocation_timestamp": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp at which the agent began execution.",
+          "format": "date-time"
+        },
+        "completion_timestamp": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp at which the agent completed or was interrupted.",
+          "format": "date-time"
+        },
+        "outcome": {
+          "type": "string",
+          "description": "Outcome of the execution.",
+          "enum": ["success", "failure", "partial", "interrupted", "in-progress"]
+        },
+        "outcome_detail": {
+          "type": "string",
+          "description": "Human-readable summary of outcome.",
+          "maxLength": 1024
+        },
+        "actions": {
+          "type": "array",
+          "description": "Ordered list of discrete actions taken by the agent.",
+          "items": {
+            "$ref": "#/definitions/action"
+          }
+        },
+        "artifacts_produced": {
+          "type": "array",
+          "description": "List of artifacts created or modified by the agent.",
+          "items": {
+            "$ref": "#/definitions/artifact"
+          }
+        },
+        "human_handoffs": {
+          "type": "array",
+          "description": "Human-in-the-loop checkpoints triggered during execution.",
+          "items": {
+            "$ref": "#/definitions/handoff"
+          }
+        },
+        "environment": {
+          "$ref": "#/definitions/environment"
+        }
+      }
+    },
+    "trust_posture": {
+      "$ref": "trust-posture.schema.json",
+      "description": "Agent Trust Posture evaluation. See spec/02-trust-posture.md."
+    },
+    "integrity": {
+      "type": "object",
+      "description": "Cryptographic integrity fields for this record.",
+      "required": ["record_hash", "record_signature", "signing_key_id", "signing_algorithm"],
+      "additionalProperties": false,
+      "properties": {
+        "record_hash": {
+          "type": "string",
+          "description": "SHA-256 of the canonical JSON serialization of this record (excluding the integrity field).",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "record_signature": {
+          "type": "string",
+          "description": "Base64-encoded signature over record_hash.",
+          "contentEncoding": "base64"
+        },
+        "signing_key_id": {
+          "type": "string",
+          "description": "Key ID of the signing key, resolvable to a public key via the agent's JWKS endpoint."
+        },
+        "signing_algorithm": {
+          "type": "string",
+          "description": "JWA algorithm identifier.",
+          "enum": ["ES256", "ES384", "ES512", "RS256", "RS384", "RS512", "EdDSA"]
+        },
+        "transparency_log_ref": {
+          "type": "string",
+          "description": "Reference to the Rekor or equivalent transparency log entry for this record.",
+          "format": "uri"
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Vendor or researcher extensions. Keys MUST be prefixed with x- or a registered namespace.",
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "action": {
+      "type": "object",
+      "description": "A single discrete action taken by the agent.",
+      "required": ["action_id", "action_type", "timestamp", "summary", "reversible"],
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "UUID v4 uniquely identifying this action.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "action_type": {
+          "type": "string",
+          "description": "Structured action type.",
+          "enum": [
+            "git-commit",
+            "git-push",
+            "pr-open",
+            "pr-comment",
+            "pr-merge",
+            "pr-close",
+            "issue-create",
+            "issue-comment",
+            "issue-close",
+            "api-call",
+            "file-write",
+            "file-delete",
+            "tool-invocation",
+            "ci-trigger",
+            "deploy",
+            "secret-read",
+            "permission-change",
+            "other"
+          ]
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp.",
+          "format": "date-time"
+        },
+        "target": {
+          "type": "string",
+          "description": "Resource URI or identifier the action acted upon."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Human-readable description of the action.",
+          "maxLength": 256
+        },
+        "reversible": {
+          "type": "boolean",
+          "description": "Whether this action can be reversed."
+        },
+        "tool_name": {
+          "type": "string",
+          "description": "If a tool was invoked, the tool's registered name."
+        },
+        "tool_version": {
+          "type": "string",
+          "description": "Version of the tool invoked."
+        },
+        "input_hash": {
+          "type": "string",
+          "description": "SHA-256 of the input provided to this action.",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "output_hash": {
+          "type": "string",
+          "description": "SHA-256 of the output produced by this action.",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "description": "An artifact created or modified by the agent.",
+      "required": ["artifact_id", "artifact_type", "uri", "content_hash", "created_at"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "description": "UUID v4.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "artifact_type": {
+          "type": "string",
+          "description": "Classification of the artifact.",
+          "enum": [
+            "pull-request",
+            "commit",
+            "comment",
+            "file",
+            "report",
+            "test-result",
+            "sbom",
+            "other"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "description": "Resolvable URI for the artifact.",
+          "format": "uri"
+        },
+        "content_hash": {
+          "type": "string",
+          "description": "SHA-256 of the artifact content at time of creation.",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the artifact.",
+          "maxLength": 256
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "description": "A human-in-the-loop checkpoint.",
+      "required": ["handoff_id", "handoff_type", "triggered_at", "trigger_reason"],
+      "additionalProperties": false,
+      "properties": {
+        "handoff_id": {
+          "type": "string",
+          "description": "UUID v4.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "handoff_type": {
+          "type": "string",
+          "description": "Type of handoff.",
+          "enum": ["approval-required", "review-requested", "escalation", "interrupt"]
+        },
+        "triggered_at": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp when the handoff was triggered.",
+          "format": "date-time"
+        },
+        "trigger_reason": {
+          "type": "string",
+          "description": "Reason the handoff was triggered.",
+          "maxLength": 512
+        },
+        "assignee": {
+          "type": "string",
+          "description": "Identity reference of the human assigned."
+        },
+        "resolved_at": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp when the handoff was resolved.",
+          "format": "date-time"
+        },
+        "resolution": {
+          "type": "string",
+          "description": "How the handoff was resolved.",
+          "enum": ["approved", "rejected", "modified", "timed-out", "pending"]
+        },
+        "resolution_note": {
+          "type": "string",
+          "description": "Human-provided note on resolution.",
+          "maxLength": 512
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "description": "Runtime environment descriptor.",
+      "required": ["environment_id", "environment_type", "platform"],
+      "additionalProperties": false,
+      "properties": {
+        "environment_id": {
+          "type": "string",
+          "description": "Stable identifier for the execution environment class."
+        },
+        "environment_type": {
+          "type": "string",
+          "description": "Classification of the execution environment.",
+          "enum": ["managed-cloud", "self-hosted-runner", "container", "vm", "tee"]
+        },
+        "runner_id": {
+          "type": "string",
+          "description": "Instance identifier of the runner."
+        },
+        "platform": {
+          "type": "string",
+          "description": "Operating platform.",
+          "examples": ["linux/amd64", "windows/amd64", "linux/arm64"]
+        },
+        "network_policy": {
+          "type": "string",
+          "description": "Network egress policy of the environment.",
+          "enum": ["egress-restricted", "full-egress", "air-gapped"]
+        },
+        "isolation_attestation_ref": {
+          "type": "string",
+          "description": "Reference to attestation that the environment meets the claimed isolation properties.",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}

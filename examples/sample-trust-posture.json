@@ -1,0 +1,98 @@
+{
+  "_comment": "Sample standalone Agent Trust Posture record — Tier 2 dependency update agent invocation requiring human approval. All hashes, signatures, and IDs are illustrative only.",
+  "spec_version": "0.1.0",
+  "evaluated_at": "2025-06-15T14:30:01Z",
+  "evaluated_by": "https://policy.contoso.com/agent-authorization/v1",
+  "overall_status": "pass",
+  "capability_tier": 2,
+  "tier_determination_basis": "scope-mapping",
+  "highest_tier_scope": "pr:merge",
+  "identity": {
+    "status": "pass",
+    "agent_id_verified": true,
+    "token_type": "oidc-workload",
+    "token_expiry": "2025-06-15T15:30:00Z",
+    "token_binding_method": "mtls",
+    "identity_provider_verified": true,
+    "identity_provider": "https://login.microsoftonline.com/contoso-tenant-id/v2.0",
+    "registration_ref": "https://entra.microsoft.com/contoso-tenant-id/agents/agent-dependabot-orchestrator-v1"
+  },
+  "least_privilege": {
+    "status": "pass",
+    "scope_derivation_method": "human-approval",
+    "scopes_granted": [
+      "repo:read",
+      "dependency:read",
+      "dependency:write",
+      "pr:read",
+      "pr:write",
+      "pr:merge",
+      "ci:read",
+      "ci:trigger"
+    ],
+    "scopes_requested_not_granted": ["ci:configure"],
+    "policy_ref": "https://policy.contoso.com/agent-authorization/v1/evaluations/eval-20250615-143001",
+    "scope_expiry": "2025-06-15T18:30:00Z",
+    "standing_permissions_present": false
+  },
+  "safety_currency": {
+    "status": "pass",
+    "model_id": "anthropic/claude-3-5-sonnet-20241022",
+    "model_version": "20241022",
+    "evaluations": [
+      {
+        "benchmark": "mlcommons-ailuminate",
+        "benchmark_version": "1.0",
+        "score": 4.3,
+        "score_max": 5.0,
+        "evaluated_at": "2025-05-01T00:00:00Z",
+        "evaluation_ref": "https://mlcommons.org/ailuminate/results/anthropic-claude-3-5-sonnet-20241022",
+        "pass": true
+      },
+      {
+        "benchmark": "helm-safety",
+        "benchmark_version": "0.5.0",
+        "score": 85.7,
+        "score_max": 100.0,
+        "evaluated_at": "2025-04-20T00:00:00Z",
+        "evaluation_ref": "https://crfm.stanford.edu/helm/results/claude-3-5-sonnet-20241022-safety",
+        "pass": true
+      },
+      {
+        "benchmark": "metr-autonomy",
+        "benchmark_version": "0.3.0",
+        "score": 2.5,
+        "score_max": 5.0,
+        "evaluated_at": "2025-04-15T00:00:00Z",
+        "evaluation_ref": "https://metr.org/autonomy-eval/anthropic-claude-3-5-sonnet-20241022",
+        "pass": true
+      },
+      {
+        "benchmark": "vendor-red-team",
+        "benchmark_version": "Q1-2025",
+        "score": 4.0,
+        "score_max": 5.0,
+        "evaluated_at": "2025-03-01T00:00:00Z",
+        "evaluation_ref": "https://anthropic.com/safety-evaluations/claude-3-5-sonnet-20241022-red-team-q1-2025",
+        "pass": true
+      }
+    ],
+    "oldest_evaluation_age_days": 107,
+    "tier_required": 2,
+    "all_required_benchmarks_pass": true
+  },
+  "environment_integrity": {
+    "status": "pass",
+    "environment_type": "attested-container",
+    "environment_id": "contoso-hardened-container-runtime-v3",
+    "runner_id": "container-runner-8f9a0b1c",
+    "egress_policy": "egress-restricted",
+    "ephemeral": true,
+    "audit_log_ref": "https://contoso-aebom-storage.blob.core.windows.net/audit-logs/2025-06-15/container-run-8f9a0b1c.log",
+    "environment_sbom_ref": "https://contoso-aebom-storage.blob.core.windows.net/env-sboms/hardened-container-runtime-v3.json",
+    "attestation_ref": "https://contoso-aebom-storage.blob.core.windows.net/attestations/container-runner-8f9a0b1c-20250615.json",
+    "meets_tier_requirement": true
+  },
+  "trust_posture_signature": "MEUCIQDexample+base64+trust+posture+signature+value+for+tier2+illustration+only==",
+  "trust_posture_signing_key_id": "policy-engine-key-2025-06"
+}
