@@ -1,0 +1,396 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/AgentCraftworks/AgenticEngineer-BillOfMaterials/schema/trust-posture.schema.json",
+  "title": "Agent Trust Posture (ATP)",
+  "description": "Schema for the four-pillar Agent Trust Posture evaluation appended to an AEBOM Core record. Specification: spec/02-trust-posture.md",
+  "version": "0.1.0",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "evaluated_at",
+    "evaluated_by",
+    "overall_status",
+    "capability_tier",
+    "identity",
+    "least_privilege",
+    "safety_currency",
+    "environment_integrity",
+    "trust_posture_signature",
+    "trust_posture_signing_key_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "description": "ATP specification version.",
+      "enum": ["0.1.0"]
+    },
+    "evaluated_at": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp when this trust posture was evaluated.",
+      "format": "date-time"
+    },
+    "evaluated_by": {
+      "type": "string",
+      "description": "URI of the policy engine or identity of the human evaluator."
+    },
+    "overall_status": {
+      "type": "string",
+      "description": "Computed overall trust posture status.",
+      "enum": ["pass", "fail", "degraded", "blocked"]
+    },
+    "capability_tier": {
+      "type": "integer",
+      "description": "Autonomy tier of this invocation (0–3). See spec/03-capability-thresholds.md.",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "tier_determination_basis": {
+      "type": "string",
+      "description": "How the capability tier was determined.",
+      "enum": ["scope-mapping", "action-classification", "explicit-declaration", "policy-engine"]
+    },
+    "highest_tier_scope": {
+      "type": "string",
+      "description": "The scope that determined the capability tier."
+    },
+    "identity": {
+      "type": "object",
+      "description": "Pillar 1 — Identity evaluation.",
+      "required": [
+        "status",
+        "agent_id_verified",
+        "token_type",
+        "token_expiry",
+        "token_binding_method",
+        "identity_provider_verified",
+        "identity_provider"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "degraded"]
+        },
+        "agent_id_verified": {
+          "type": "boolean",
+          "description": "Whether the agent_id was verified against the OIDC token sub claim."
+        },
+        "token_type": {
+          "type": "string",
+          "description": "Type of identity token used.",
+          "enum": ["oidc-workload", "entra-agent-identity", "service-account", "other"]
+        },
+        "token_expiry": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp of token expiry.",
+          "format": "date-time"
+        },
+        "token_binding_method": {
+          "type": "string",
+          "description": "Method used to bind the token to the execution environment.",
+          "enum": ["dpop", "mtls", "none"]
+        },
+        "identity_provider_verified": {
+          "type": "boolean",
+          "description": "Whether the identity provider is in the organization's approved list."
+        },
+        "identity_provider": {
+          "type": "string",
+          "description": "Issuer URI of the identity provider.",
+          "format": "uri"
+        },
+        "registration_ref": {
+          "type": "string",
+          "description": "URI to the agent's directory entry.",
+          "format": "uri"
+        },
+        "failure_reason": {
+          "type": "string",
+          "description": "Reason for failure, if status is not pass.",
+          "maxLength": 512
+        }
+      }
+    },
+    "least_privilege": {
+      "type": "object",
+      "description": "Pillar 2 — Least-Privilege evaluation.",
+      "required": [
+        "status",
+        "scope_derivation_method",
+        "scopes_granted",
+        "scope_expiry",
+        "standing_permissions_present"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "degraded"]
+        },
+        "scope_derivation_method": {
+          "type": "string",
+          "description": "How the scope set was derived.",
+          "enum": ["policy-engine", "human-approval", "pipeline-declared"]
+        },
+        "scopes_granted": {
+          "type": "array",
+          "description": "Scopes actually granted for this invocation.",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "scopes_requested_not_granted": {
+          "type": "array",
+          "description": "Scopes requested but not granted.",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "policy_ref": {
+          "type": "string",
+          "description": "URI to the policy evaluation artifact.",
+          "format": "uri"
+        },
+        "scope_expiry": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp after which scopes are automatically revoked.",
+          "format": "date-time"
+        },
+        "standing_permissions_present": {
+          "type": "boolean",
+          "description": "Whether standing (non-task-scoped) permissions were detected."
+        },
+        "failure_reason": {
+          "type": "string",
+          "description": "Reason for failure, if status is not pass.",
+          "maxLength": 512
+        }
+      }
+    },
+    "safety_currency": {
+      "type": "object",
+      "description": "Pillar 3 — Safety Currency evaluation.",
+      "required": [
+        "status",
+        "model_id",
+        "model_version",
+        "evaluations",
+        "oldest_evaluation_age_days",
+        "tier_required",
+        "all_required_benchmarks_pass"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "degraded"]
+        },
+        "model_id": {
+          "type": "string",
+          "description": "Identifier of the model being evaluated."
+        },
+        "model_version": {
+          "type": "string",
+          "description": "Version string of the model."
+        },
+        "evaluations": {
+          "type": "array",
+          "description": "List of benchmark evaluations for this model.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["benchmark", "benchmark_version", "score", "score_max", "evaluated_at", "pass"],
+            "additionalProperties": false,
+            "properties": {
+              "benchmark": {
+                "type": "string",
+                "description": "Benchmark identifier.",
+                "enum": [
+                  "mlcommons-ailuminate",
+                  "helm-safety",
+                  "metr-autonomy",
+                  "frontier-safety-framework",
+                  "vendor-red-team",
+                  "other"
+                ]
+              },
+              "benchmark_version": {
+                "type": "string",
+                "description": "Version of the benchmark used."
+              },
+              "score": {
+                "type": "number",
+                "description": "Score achieved."
+              },
+              "score_max": {
+                "type": "number",
+                "description": "Maximum possible score."
+              },
+              "evaluated_at": {
+                "type": "string",
+                "description": "ISO 8601 UTC timestamp of evaluation.",
+                "format": "date-time"
+              },
+              "evaluation_ref": {
+                "type": "string",
+                "description": "URI to the evaluation artifact.",
+                "format": "uri"
+              },
+              "pass": {
+                "type": "boolean",
+                "description": "Whether the model passed this benchmark for the required tier."
+              }
+            }
+          }
+        },
+        "oldest_evaluation_age_days": {
+          "type": "integer",
+          "description": "Age in days of the oldest evaluation in the list.",
+          "minimum": 0
+        },
+        "tier_required": {
+          "type": "integer",
+          "description": "Capability tier for which safety currency is being evaluated.",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "all_required_benchmarks_pass": {
+          "type": "boolean",
+          "description": "Whether all required benchmarks for the tier pass."
+        },
+        "failure_reason": {
+          "type": "string",
+          "description": "Reason for failure, if status is not pass.",
+          "maxLength": 512
+        }
+      }
+    },
+    "environment_integrity": {
+      "type": "object",
+      "description": "Pillar 4 — Environment Integrity evaluation.",
+      "required": [
+        "status",
+        "environment_type",
+        "environment_id",
+        "egress_policy",
+        "ephemeral",
+        "meets_tier_requirement"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "degraded"]
+        },
+        "environment_type": {
+          "type": "string",
+          "description": "Class of the execution environment.",
+          "enum": ["managed-cloud", "attested-container", "hardened-vm", "tee"]
+        },
+        "environment_id": {
+          "type": "string",
+          "description": "Stable environment class identifier."
+        },
+        "runner_id": {
+          "type": "string",
+          "description": "Instance identifier of the runner."
+        },
+        "egress_policy": {
+          "type": "string",
+          "description": "Network egress policy enforced in this environment.",
+          "enum": ["egress-restricted", "full-egress", "air-gapped"]
+        },
+        "ephemeral": {
+          "type": "boolean",
+          "description": "Whether the environment is ephemeral (no persistent state across tasks)."
+        },
+        "audit_log_ref": {
+          "type": "string",
+          "description": "URI to the tamper-evident audit log.",
+          "format": "uri"
+        },
+        "environment_sbom_ref": {
+          "type": "string",
+          "description": "URI to the environment SBOM.",
+          "format": "uri"
+        },
+        "attestation_ref": {
+          "type": "string",
+          "description": "URI to the runtime attestation.",
+          "format": "uri"
+        },
+        "hardware_attestation_ref": {
+          "type": "string",
+          "description": "URI to the hardware attestation report (TEE environments only).",
+          "format": "uri"
+        },
+        "meets_tier_requirement": {
+          "type": "boolean",
+          "description": "Whether the environment class meets the minimum requirement for the capability tier."
+        },
+        "failure_reason": {
+          "type": "string",
+          "description": "Reason for failure, if status is not pass.",
+          "maxLength": 512
+        }
+      }
+    },
+    "tier_3_approvals": {
+      "type": "array",
+      "description": "Required for Tier 3 invocations: named human approvals and four-eyes reviewer records.",
+      "items": {
+        "type": "object",
+        "required": ["approver", "role"],
+        "additionalProperties": false,
+        "properties": {
+          "approver": {
+            "type": "string",
+            "description": "Identity reference of the approver."
+          },
+          "approved_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC timestamp of approval.",
+            "format": "date-time"
+          },
+          "approval_ref": {
+            "type": "string",
+            "description": "Content-addressable reference to the approval record.",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "notified_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC timestamp when the reviewer was notified (four-eyes reviewer).",
+            "format": "date-time"
+          },
+          "objection_window_closed_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC timestamp when the objection window closed.",
+            "format": "date-time"
+          },
+          "objected": {
+            "type": "boolean",
+            "description": "Whether the four-eyes reviewer objected."
+          },
+          "role": {
+            "type": "string",
+            "description": "Role of this approval entry.",
+            "enum": ["primary-approver", "four-eyes-reviewer"]
+          }
+        }
+      }
+    },
+    "trust_posture_signature": {
+      "type": "string",
+      "description": "Base64-encoded signature over the canonical JSON of this trust posture object (excluding this field).",
+      "contentEncoding": "base64"
+    },
+    "trust_posture_signing_key_id": {
+      "type": "string",
+      "description": "Key ID of the key used to sign this trust posture object."
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Vendor or researcher extensions.",
+      "additionalProperties": true
+    }
+  }
+}
